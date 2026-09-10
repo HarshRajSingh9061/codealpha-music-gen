@@ -1,0 +1,5 @@
+﻿flask>=3.0.0
+music21>=9.1.0
+numpy>=1.26.0
+tensorflow>=2.15.0
+midiutil>=1.2.1
