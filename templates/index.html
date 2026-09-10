@@ -1,0 +1,264 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>MusicAI — Music Generation with AI | CodeAlpha</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body>
+  <div class="bg-blob blob-1"></div>
+  <div class="bg-blob blob-2"></div>
+  <div class="bg-blob blob-3"></div>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="logo">
+      <div class="logo-icon"><i class="fa-solid fa-music"></i></div>
+      <div class="logo-text">
+        <span class="logo-name">MusicAI</span>
+        <span class="logo-sub">by CodeAlpha</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="status-pill" id="statusPill">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusLabel">Checking…</span>
+      </div>
+      <div class="header-badge"><i class="fa-solid fa-circle-check"></i> Task 3 — Music Generation</div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-tag"><i class="fa-solid fa-wand-magic-sparkles"></i> LSTM · RNN · music21</div>
+    <h1 class="hero-title">AI Composes <span class="gradient-text">Music</span></h1>
+    <p class="hero-sub">Train a deep LSTM neural network on classical MIDI data and generate original music sequences.</p>
+  </section>
+
+  <!-- PIPELINE STEPS -->
+  <main class="main-wrap">
+
+    <!-- Pipeline tracker -->
+    <div class="pipeline">
+      <div class="pipe-step" id="pipeStep1">
+        <div class="pipe-num">1</div>
+        <div class="pipe-label">Generate<br>MIDI Data</div>
+      </div>
+      <div class="pipe-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+      <div class="pipe-step" id="pipeStep2">
+        <div class="pipe-num">2</div>
+        <div class="pipe-label">Preprocess<br>Sequences</div>
+      </div>
+      <div class="pipe-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+      <div class="pipe-step" id="pipeStep3">
+        <div class="pipe-num">3</div>
+        <div class="pipe-label">Train<br>LSTM Model</div>
+      </div>
+      <div class="pipe-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+      <div class="pipe-step" id="pipeStep4">
+        <div class="pipe-num">4</div>
+        <div class="pipe-label">Generate<br>Music</div>
+      </div>
+    </div>
+
+    <!-- Cards grid -->
+    <div class="cards-grid">
+
+      <!-- Step 1: Generate MIDI -->
+      <div class="card" id="card1">
+        <div class="card-header">
+          <div class="card-icon" style="background:linear-gradient(135deg,#6C63FF,#4B44CC)">
+            <i class="fa-solid fa-file-audio"></i>
+          </div>
+          <div>
+            <h2 class="card-title">Step 1 — Generate Training Data</h2>
+            <p class="card-sub">Create 8 classical MIDI files using music21 (melodies, chords, arpeggios, Bach-style)</p>
+          </div>
+        </div>
+        <div class="info-grid">
+          <div class="info-item"><i class="fa-solid fa-music"></i> 8 MIDI pieces generated</div>
+          <div class="info-item"><i class="fa-solid fa-piano-keyboard"></i> C/G/A/D/F/E scales</div>
+          <div class="info-item"><i class="fa-solid fa-layer-group"></i> Melodies + Chords + Arpeggios</div>
+          <div class="info-item"><i class="fa-solid fa-waveform-lines"></i> Varied BPM & time signatures</div>
+        </div>
+        <div class="card-footer">
+          <div class="ready-badge" id="midiReady" style="display:none">
+            <i class="fa-solid fa-circle-check"></i> MIDI data ready
+          </div>
+          <button class="action-btn btn-purple" id="btnGenMidi" onclick="generateMidi()">
+            <i class="fa-solid fa-bolt"></i> Generate MIDI Data
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 2: Preprocess -->
+      <div class="card" id="card2">
+        <div class="card-header">
+          <div class="card-icon" style="background:linear-gradient(135deg,#FF6B6B,#cc4444)">
+            <i class="fa-solid fa-gears"></i>
+          </div>
+          <div>
+            <h2 class="card-title">Step 2 — Preprocess & Extract Features</h2>
+            <p class="card-sub">Parse notes/chords, build vocabulary, create sliding-window LSTM sequences</p>
+          </div>
+        </div>
+        <div class="info-grid">
+          <div class="info-item"><i class="fa-solid fa-list-ol"></i> Extract note tokens from MIDI</div>
+          <div class="info-item"><i class="fa-solid fa-book"></i> Build note vocabulary</div>
+          <div class="info-item"><i class="fa-solid fa-window-restore"></i> Sliding window (50 notes)</div>
+          <div class="info-item"><i class="fa-solid fa-circle-nodes"></i> One-hot encode outputs</div>
+        </div>
+        <div id="preprocessStats" style="display:none" class="stats-row"></div>
+        <div class="card-footer">
+          <div class="ready-badge" id="cacheReady" style="display:none">
+            <i class="fa-solid fa-circle-check"></i> Sequences ready
+          </div>
+          <button class="action-btn btn-red" id="btnPreprocess" onclick="preprocess()">
+            <i class="fa-solid fa-gears"></i> Preprocess Data
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 3: Train -->
+      <div class="card card-wide" id="card3">
+        <div class="card-header">
+          <div class="card-icon" style="background:linear-gradient(135deg,#43E8A0,#22bb77)">
+            <i class="fa-solid fa-brain"></i>
+          </div>
+          <div>
+            <h2 class="card-title">Step 3 — Train LSTM Neural Network</h2>
+            <p class="card-sub">3-layer stacked LSTM (512→512→256) + Dropout + BatchNorm → learns music patterns</p>
+          </div>
+        </div>
+
+        <!-- Hyperparameters -->
+        <div class="hyper-grid">
+          <div class="hyper-field">
+            <label>Epochs</label>
+            <input type="number" id="epochs" value="50" min="5" max="300" class="hyper-input"/>
+          </div>
+          <div class="hyper-field">
+            <label>Batch Size</label>
+            <input type="number" id="batchSize" value="64" min="16" max="256" step="16" class="hyper-input"/>
+          </div>
+          <div class="hyper-field">
+            <label>Learning Rate</label>
+            <input type="number" id="lr" value="0.001" min="0.0001" max="0.01" step="0.0001" class="hyper-input"/>
+          </div>
+        </div>
+
+        <!-- Architecture diagram -->
+        <div class="arch-diagram">
+          <div class="arch-layer input-layer">Input<br><small>(50,1)</small></div>
+          <div class="arch-arrow">→</div>
+          <div class="arch-layer lstm-layer">LSTM<br><small>512</small></div>
+          <div class="arch-arrow">→</div>
+          <div class="arch-layer lstm-layer">LSTM<br><small>512</small></div>
+          <div class="arch-arrow">→</div>
+          <div class="arch-layer lstm-layer">LSTM<br><small>256</small></div>
+          <div class="arch-arrow">→</div>
+          <div class="arch-layer dense-layer">Dense<br><small>256</small></div>
+          <div class="arch-arrow">→</div>
+          <div class="arch-layer output-layer">Softmax<br><small>n_vocab</small></div>
+        </div>
+
+        <!-- Training progress -->
+        <div id="trainingProgress" style="display:none">
+          <div class="progress-header">
+            <span id="epochLabel">Epoch 0/0</span>
+            <span id="pctLabel">0%</span>
+          </div>
+          <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+          <div class="metrics-row">
+            <div class="metric-box"><span class="metric-label">Loss</span><span class="metric-val" id="mLoss">—</span></div>
+            <div class="metric-box"><span class="metric-label">Accuracy</span><span class="metric-val" id="mAcc">—</span></div>
+            <div class="metric-box"><span class="metric-label">Val Loss</span><span class="metric-val" id="mValLoss">—</span></div>
+            <div class="metric-box"><span class="metric-label">Val Acc</span><span class="metric-val" id="mValAcc">—</span></div>
+          </div>
+          <!-- Mini loss chart -->
+          <canvas id="lossChart" height="80" style="margin-top:12px;width:100%;border-radius:8px;"></canvas>
+        </div>
+
+        <div class="card-footer">
+          <div class="ready-badge" id="modelReady" style="display:none">
+            <i class="fa-solid fa-circle-check"></i> Model trained
+          </div>
+          <button class="action-btn btn-green" id="btnTrain" onclick="startTraining()">
+            <i class="fa-solid fa-brain"></i> Start Training
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 4: Generate Music -->
+      <div class="card card-wide" id="card4">
+        <div class="card-header">
+          <div class="card-icon" style="background:linear-gradient(135deg,#f9c74f,#e07b00)">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+          </div>
+          <div>
+            <h2 class="card-title">Step 4 — Generate New Music</h2>
+            <p class="card-sub">Use the trained LSTM to compose a brand-new MIDI sequence and download it</p>
+          </div>
+        </div>
+
+        <!-- Generation controls -->
+        <div class="gen-controls">
+          <div class="hyper-field">
+            <label><i class="fa-solid fa-music"></i> Notes to Generate</label>
+            <input type="range" id="nNotes" min="50" max="300" value="100" class="slider" oninput="document.getElementById('nNotesVal').textContent=this.value"/>
+            <span class="slider-val" id="nNotesVal">100</span>
+          </div>
+          <div class="hyper-field">
+            <label><i class="fa-solid fa-temperature-half"></i> Temperature (creativity)</label>
+            <input type="range" id="temperature" min="0.5" max="2.0" step="0.1" value="1.0" class="slider" oninput="document.getElementById('tempVal').textContent=this.value"/>
+            <span class="slider-val" id="tempVal">1.0</span>
+          </div>
+          <div class="hyper-field">
+            <label><i class="fa-solid fa-drum"></i> BPM (Tempo)</label>
+            <input type="range" id="bpm" min="60" max="160" value="90" class="slider" oninput="document.getElementById('bpmVal').textContent=this.value"/>
+            <span class="slider-val" id="bpmVal">90</span>
+          </div>
+        </div>
+
+        <div class="temp-hint">
+          <i class="fa-solid fa-circle-info"></i>
+          Temperature: <b>Low (&lt;1)</b> = conservative/classical &nbsp;|&nbsp; <b>High (&gt;1)</b> = creative/experimental
+        </div>
+
+        <!-- Output files -->
+        <div id="outputFiles" style="display:none">
+          <h3 class="files-title"><i class="fa-solid fa-folder-open"></i> Generated Files</h3>
+          <div id="filesList" class="files-list"></div>
+        </div>
+
+        <div class="card-footer">
+          <button class="action-btn btn-gold" id="btnGenerate" onclick="generateMusic()">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Generate Music
+          </button>
+        </div>
+      </div>
+
+    </div><!-- /.cards-grid -->
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+      <i class="fa-solid fa-circle-check" id="toastIcon"></i>
+      <span id="toastMsg">Done!</span>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <p><i class="fa-solid fa-code"></i> Built for <strong>CodeAlpha Task 3</strong> — Music Generation with AI</p>
+    <p class="footer-sub">Powered by TensorFlow LSTM &bull; music21 &bull; Flask</p>
+  </footer>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
